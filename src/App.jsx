@@ -1,122 +1,122 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from './supabaseClient';
+import Navbar from './components/Navbar';
+import Login from './components/Login';
+import Map from './components/Map';
+import NotaForm from './components/NotaForm';
+import LoginToast from './components/LoginToast';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [session, setSession] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [clickCoords, setClickCoords] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleMapClick = (coords) => {
+    setClickCoords(coords);
+
+    if (session) {
+      setShowForm(true);
+      setShowToast(false);
+    } else {
+      setShowToast(true);
+      setShowForm(false);
+    }
+  };
+
+  const handleCloseForm = () => {
+    setShowForm(false);
+    setClickCoords(null);
+  };
+
+  const handleDismissToast = () => {
+    setShowToast(false);
+    setClickCoords(null);
+  };
+
+  const handleToastLoginClick = () => {
+    setShowToast(false);
+    setShowLoginModal(true);
+  };
+
+  const handleLoginSuccess = (s) => {
+    setSession(s);
+    setShowLoginModal(false);
+    // Si el usuario estaba intentando crear una nota, abrimos el form con las coords guardadas
+    if (clickCoords && s) {
+      setShowForm(true);
+    }
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="min-h-screen bg-[#0B1120] text-slate-100">
+      <Navbar
+        session={session}
+        onLoginClick={() => setShowLoginModal(true)}
+        onLogout={() => supabase.auth.signOut()}
+      />
 
-      <div className="ticks"></div>
+      <AnimatePresence>
+        {showLoginModal && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              onClick={() => setShowLoginModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 12 }}
+              transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="relative w-full max-w-3xl rounded-2xl overflow-hidden border border-slate-800 shadow-2xl"
+            >
+              <Login onLogin={handleLoginSuccess} onClose={() => setShowLoginModal(false)} />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      {/* Map full-screen behind navbar */}
+      <main className="fixed inset-0 top-16" style={{ zIndex: 1 }}>
+        <Map session={session} onMapClick={handleMapClick} />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        {/* NotaForm panel */}
+        <AnimatePresence>
+          {showForm && clickCoords && session && (
+            <NotaForm
+              lng={clickCoords.lng}
+              lat={clickCoords.lat}
+              session={session}
+              onClose={handleCloseForm}
+              onSaved={() => setClickCoords(null)}
+            />
+          )}
+        </AnimatePresence>
+      </main>
+
+      {/* LoginToast */}
+      <AnimatePresence>
+        {showToast && !showForm && (
+          <LoginToast
+            onDismiss={handleDismissToast}
+            onLoginClick={handleToastLoginClick}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
 
-export default App
+export default App;
