@@ -1,16 +1,65 @@
-# React + Vite
+# Geo-Notas Realtime
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Mapa interactivo en tiempo real donde cualquiera puede ver notas geolocalizadas, y los usuarios logueados pueden crear nuevas notas y reaccionar a las existentes.
 
-Currently, two official plugins are available:
+**Demo en vivo:** [geo-notas.vercel.app](https://geo-notas.vercel.app/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Stack
 
-## React Compiler
+- **Frontend:** React + Vite
+- **Estilos:** Tailwind CSS v4
+- **Animaciones:** Framer Motion
+- **Mapa:** MapLibre GL JS + tiles de [OpenFreeMap](https://openfreemap.org/)
+- **Backend:** Supabase (Auth, Postgres, Realtime)
+- **Deploy:** Vercel
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Funcionalidades
 
-## Expanding the ESLint configuration
+- Lectura del mapa pública, sin necesidad de login
+- Crear notas requiere estar autenticado
+- Reacciones (👍 ❤️ 😮) en tiempo real, con actualización optimista
+- Las notas nuevas aparecen al instante en todos los clientes conectados
+- Las notas se ocultan del mapa pasadas 24 hs (no se borran de la base)
+- Mapa centrado en el Valle de Aburrá, Colombia, con paneo limitado a esa zona
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Correr el proyecto en local
+
+### Requisitos
+- Node.js 18+
+- Una cuenta de [Supabase](https://supabase.com/) con un proyecto creado
+
+### Pasos
+
+1. Cloná el repo:
+   ```bash
+   git clone <url-del-repo>
+   cd geo-notas
+   ```
+
+2. Instalá las dependencias:
+   ```bash
+   npm install
+   ```
+
+3. Creá un archivo `.env` en la raíz con tus credenciales de Supabase:
+   ```
+   VITE_SUPABASE_URL=tu-url-de-supabase
+   VITE_SUPABASE_ANON_KEY=tu-key-publishable
+   ```
+
+4. Corré el servidor de desarrollo:
+   ```bash
+   npm run dev
+   ```
+
+5. Abrí `http://localhost:5173` en el navegador.
+
+### Base de datos
+
+El proyecto necesita dos tablas en Supabase: `notas` y `reacciones`, con Row Level Security habilitado (lectura pública, escritura solo para el usuario autenticado dueño del recurso). Además hay que activar Realtime sobre ambas tablas desde el panel de Supabase.
+
+## Créditos
+
+Desarrollado por **Bryan Arias Ríos**. © 2026.
+
+Mapa de [OpenFreeMap](https://openfreemap.org/), datos de OpenStreetMap.
