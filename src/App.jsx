@@ -59,7 +59,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B1120] text-slate-100">
+    <div className="min-h-screen bg-[#0B1120] text-[#E5E7EB]">
       <Navbar
         session={session}
         onLoginClick={() => setShowLoginModal(true)}
@@ -74,7 +74,7 @@ function App() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              className="absolute inset-0 bg-[#000000]/70 backdrop-blur-sm"
               onClick={() => setShowLoginModal(false)}
             />
             <motion.div
@@ -82,7 +82,7 @@ function App() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 12 }}
               transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="relative w-full max-w-3xl rounded-2xl overflow-hidden border border-slate-800 shadow-2xl"
+              className="relative w-full max-w-3xl rounded-2xl overflow-hidden border border-[#1E293B] shadow-2xl"
             >
               <Login onLogin={handleLoginSuccess} onClose={() => setShowLoginModal(false)} />
             </motion.div>

@@ -21,17 +21,17 @@ export default function Map({ session, onMapClick, onLoginToast }) {
   const rootsRef = useRef({});
   const popupsRef = useRef({});
   const optimisticNoteRef = useRef({});
-  const [coords, setCoords] = useState({ lng: -75.5812, lat: 6.1800 });
+  const [coords, setCoords] = useState({ lng: -75.5660, lat: 6.2445 });
   const [zoom, setZoom] = useState(12.5);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     onMapClickRef.current = onMapClick;
-  });
+  }, [onMapClick]);
 
   useEffect(() => {
     onLoginToastRef.current = onLoginToast;
-  });
+  }, [onLoginToast]);
 
   useEffect(() => {
     sessionRef.current = session;
@@ -162,11 +162,19 @@ export default function Map({ session, onMapClick, onLoginToast }) {
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
 
+    const VALLE_DE_ABURRA_BOUNDS = [
+      [-75.68, 6.12],
+      [-75.48, 6.37],
+    ];
+
     const map = new maplibregl.Map({
       container: mapContainer.current,
       style: OPENFREEMAP_DARK_STYLE,
       center: [coords.lng, coords.lat],
       zoom: zoom,
+      maxBounds: VALLE_DE_ABURRA_BOUNDS,
+      minZoom: 10,
+      maxZoom: 18,
       attributionControl: true,
       hash: true,
     });
@@ -207,8 +215,6 @@ export default function Map({ session, onMapClick, onLoginToast }) {
       myReactionsRef.current = mine;
       refreshAllPopups();
     }
-
-    loadNotes();
 
     const channel = supabase
       .channel('notas-realtime')
@@ -392,36 +398,45 @@ export default function Map({ session, onMapClick, onLoginToast }) {
       />
 
       <div className="absolute top-4 left-4 z-10 pointer-events-none font-mono">
-        <div className="bg-[#0B1120]/80 backdrop-blur-md border border-slate-800 rounded-lg px-3 py-2">
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-500 uppercase tracking-wider mb-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+          <div className="bg-[#0B1120]/80 backdrop-blur-md border border-[#1E293B] rounded-lg px-3 py-2">
+          <div className="flex items-center gap-1.5 text-[10px] text-[#64748B] uppercase tracking-wider mb-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#22D3EE] animate-pulse" />
             POSICIÓN
           </div>
-          <div className="flex flex-col gap-1 text-xs text-slate-300 tabular-nums">
+          <div className="flex flex-col gap-1 text-xs text-[#CBD5E1] tabular-nums">
             <div className="flex items-center gap-1.5">
-              <span className="text-slate-600">lat</span>
+              <span className="text-[#475569]">lat</span>
               <span>{formatCoord(coords.lat)}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-slate-600">lng</span>
+              <span className="text-[#475569]">lng</span>
               <span>{formatCoord(coords.lng)}</span>
             </div>
           </div>
         </div>
 
-        <div className="mt-2 inline-flex items-center gap-1.5 bg-[#0B1120]/80 backdrop-blur-md border border-slate-800 rounded-lg px-2.5 py-1.5">
-          <span className="text-[10px] text-slate-600 uppercase tracking-wider">zoom</span>
-          <span className="text-xs text-slate-300 tabular-nums">{zoom.toFixed(1)}</span>
+        <div className="mt-2 inline-flex items-center gap-1.5 bg-[#0B1120]/80 backdrop-blur-md border border-[#1E293B] rounded-lg px-2.5 py-1.5">
+          <span className="text-[10px] text-[#475569] uppercase tracking-wider">zoom</span>
+          <span className="text-xs text-[#CBD5E1] tabular-nums">{zoom.toFixed(1)}</span>
+        </div>
+
+        <div className="mt-2 bg-[#0B1120]/80 backdrop-blur-md border border-[#F59E0B]/30 rounded-lg px-3 py-2">
+          <span className="text-xs text-[#F59E0B] font-semibold tracking-wide">Aviso: las notas expiran en 24 h</span>
         </div>
       </div>
 
       {!ready && (
         <div className="absolute inset-0 flex items-center justify-center bg-[#0B1120]">
-          <div className="font-mono text-xs text-slate-600 uppercase tracking-wider">
+          <div className="font-mono text-xs text-[#475569] uppercase tracking-wider">
             Cargando mapa…
           </div>
         </div>
       )}
+
+      <div className="absolute bottom-3 left-3 z-10 pointer-events-none font-mono text-[10px] leading-relaxed">
+        <div className="text-[#E5E7EB]">Bryan Arias Ríos · ©2026</div>
+        <div className="text-[#94A3B8]">Map tiles by <a href="https://openfreemap.org" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#CBD5E1] pointer-events-auto transition-colors">OpenFreeMap</a></div>
+      </div>
     </div>
   );
 }
