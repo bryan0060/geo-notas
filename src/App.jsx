@@ -12,6 +12,7 @@ function App() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('para crear una nota');
   const [clickCoords, setClickCoords] = useState(null);
 
   useEffect(() => {
@@ -27,6 +28,7 @@ function App() {
       setShowForm(true);
       setShowToast(false);
     } else {
+      setToastMessage('para crear una nota');
       setShowToast(true);
       setShowForm(false);
     }
@@ -90,7 +92,11 @@ function App() {
 
       {/* Map full-screen behind navbar */}
       <main className="fixed inset-0 top-16" style={{ zIndex: 1 }}>
-        <Map session={session} onMapClick={handleMapClick} />
+        <Map
+          session={session}
+          onMapClick={handleMapClick}
+          onLoginToast={(msg) => { setToastMessage(msg || 'para reaccionar'); setShowToast(true); }}
+        />
 
         {/* NotaForm panel */}
         <AnimatePresence>
@@ -112,6 +118,7 @@ function App() {
           <LoginToast
             onDismiss={handleDismissToast}
             onLoginClick={handleToastLoginClick}
+            message={toastMessage}
           />
         )}
       </AnimatePresence>

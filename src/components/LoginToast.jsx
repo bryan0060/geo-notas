@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function LoginToast({ onDismiss, onLoginClick }) {
+export default function LoginToast({ onDismiss, onLoginClick, message }) {
   useEffect(() => {
     const t = setTimeout(onDismiss, 5000);
     return () => clearTimeout(t);
@@ -22,7 +22,7 @@ export default function LoginToast({ onDismiss, onLoginClick }) {
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
         </svg>
         <p className="text-sm text-slate-200">
-          <span className="text-slate-400">Inicia sesión</span> para crear una nota.
+          <span className="text-slate-400">Iniciá sesión</span> {message || 'para crear una nota'}.
         </p>
         <button
           onClick={onLoginClick}

@@ -71,7 +71,7 @@ body {
   background: #0F1629;
   border: 1px solid #1E293B;
   border-radius: 8px;
-  padding: 8px 12px;
+  padding: 10px 12px;
   color: #E5E7EB;
   font-family: var(--font-body);
   box-shadow: 0 8px 24px rgba(0,0,0,0.5);
