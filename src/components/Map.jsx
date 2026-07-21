@@ -1,15 +1,26 @@
 import { useRef, useEffect, useState } from 'react';
+import { createRoot } from 'react-dom/client';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { supabase } from '../supabaseClient';
+import RadarPing from './RadarPing';
 
 const OPENFREEMAP_DARK_STYLE = 'https://tiles.openfreemap.org/styles/dark';
 
 export default function Map({ session, onMapClick }) {
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
+  const onMapClickRef = useRef(onMapClick);
+  const markersRef = useRef({});
+  const channelRef = useRef(null);
   const [coords, setCoords] = useState({ lng: -75.5812, lat: 6.1800 });
   const [zoom, setZoom] = useState(12.5);
   const [ready, setReady] = useState(false);
+
+  // Siempre apuntar a la prop más reciente sin triggerear re-montaje del mapa
+  useEffect(() => {
+    onMapClickRef.current = onMapClick;
+  });
 
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
@@ -25,6 +36,39 @@ export default function Map({ session, onMapClick }) {
 
     mapRef.current = map;
 
+    // fetch existing notes (only from the last 24hs)
+    const loadNotes = async () => {
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { data, error } = await supabase
+        .from('notas')
+        .select('id, titulo, categoria, lat, lng, created_at')
+        .order('created_at', { ascending: true })
+        .gt('created_at', twentyFourHoursAgo);
+      if (error) return;
+      // Ignore if this map instance was already torn down (React StrictMode in dev)
+      if (mapRef.current !== map) return;
+      data.forEach(addMarker);
+    };
+    loadNotes();
+
+    // realtime subscription
+    const channel = supabase
+      .channel('notas-realtime')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'notas' },
+        (payload) => {
+          if (mapRef.current !== map) return;
+          addMarker(payload.new);
+        }
+      )
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED' && mapRef.current === map) {
+          loadNotes();
+        }
+      });
+    channelRef.current = channel;
+
     map.on('load', () => setReady(true));
 
     map.on('move', () => {
@@ -34,10 +78,42 @@ export default function Map({ session, onMapClick }) {
     });
 
     map.on('click', (e) => {
-      onMapClick?.({ lng: e.lngLat.lng, lat: e.lngLat.lat });
+      onMapClickRef.current?.({ lng: e.lngLat.lng, lat: e.lngLat.lat });
     });
 
+    function addMarker(note) {
+      if (markersRef.current[note.id]) return; // already added
+      if (mapRef.current !== map) return;
+      const el = document.createElement('div');
+      el.className = 'note-marker';
+      el.title = note.titulo; // hover tooltip
+      // Use RadarPing component for animated pulse
+      const pingContainer = document.createElement('div');
+      pingContainer.style.position = 'relative';
+      pingContainer.style.width = '24px';
+      pingContainer.style.height = '24px';
+      // Render RadarPing via ReactDOM? Since we're outside React, we'll replicate its style with CSS.
+      // Simpler: reuse the .pulse-ring CSS but ensure it's correct.
+      el.innerHTML = '<div class="pulse-ring"></div><div class="pulse-ring"></div><div class="pulse-ring"></div>';
+      const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+        .setLngLat([note.lng, note.lat])
+        .addTo(map);
+      // optional popup on click
+      const popup = new maplibregl.Popup({ offset: 12, closeButton: false, className: 'note-popup' })
+        .setHTML(`<strong>${note.titulo}</strong><br/><span class="text-xs text-slate-400">${note.categoria}</span>`);
+      marker.setPopup(popup);
+      markersRef.current[note.id] = marker;
+    }
+
     return () => {
+      // remove markers
+      Object.values(markersRef.current).forEach((m) => m.remove());
+      markersRef.current = {};
+      // unsubscribe realtime
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
       map.remove();
       mapRef.current = null;
     };

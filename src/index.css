@@ -32,3 +32,50 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Note markers on map */
+.note-marker {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+.note-marker::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 8px; height: 8px;
+  margin: -4px 0 0 -4px;
+  background: #22D3EE;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #22D3EE;
+  z-index: 2;
+}
+.note-marker .pulse-ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid #22D3EE;
+  border-radius: 50%;
+  opacity: 0;
+  animation: pulse 2s ease-out infinite;
+}
+.note-marker .pulse-ring:nth-child(2) { animation-delay: 0.7s; }
+.note-marker .pulse-ring:nth-child(3) { animation-delay: 1.4s; }
+@keyframes pulse {
+  0% { transform: scale(0); opacity: 0.6; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* Popup styling */
+.note-popup .maplibregl-popup-content {
+  background: #0F1629;
+  border: 1px solid #1E293B;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #E5E7EB;
+  font-family: var(--font-body);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.note-popup .maplibregl-popup-tip {
+  border-top-color: #0F1629 !important;
+}
