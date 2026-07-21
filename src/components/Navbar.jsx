@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import RadarPing from './RadarPing';
 
-export default function Navbar({ session, onLoginClick, onLogout }) {
+export default function Navbar({ session, onLoginClick, onSignupClick, onLogout }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -43,13 +43,22 @@ export default function Navbar({ session, onLoginClick, onLogout }) {
               </button>
             </>
           ) : (
-            <button
-              onClick={onLoginClick}
-              className="px-4 py-2 text-sm font-semibold text-[#0B1120] bg-[#22D3EE] hover:bg-[#06B6D4] rounded-lg transition-colors"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}
-            >
-              Iniciar sesión
-            </button>
+            <>
+              <button
+                onClick={onLoginClick}
+                className="px-4 py-2 text-sm text-[#CBD5E1] hover:text-white border border-[#334155] hover:border-[#64748B] rounded-lg transition-colors"
+                style={{ fontFamily: "'DM Sans', sans-serif" }}
+              >
+                Iniciar sesión
+              </button>
+              <button
+                onClick={onSignupClick}
+                className="px-4 py-2 text-sm font-semibold text-[#0B1120] bg-[#22D3EE] hover:bg-[#06B6D4] rounded-lg transition-colors"
+                style={{ fontFamily: "'DM Sans', sans-serif" }}
+              >
+                Registrarse
+              </button>
+            </>
           )}
         </div>
       </div>

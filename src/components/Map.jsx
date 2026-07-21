@@ -323,6 +323,8 @@ export default function Map({ session, onMapClick, onLoginToast }) {
     });
 
     map.on('click', (e) => {
+      const target = e.originalEvent?.target;
+      if (target?.closest('.note-marker, .maplibregl-popup')) return;
       onMapClickRef.current?.({ lng: e.lngLat.lng, lat: e.lngLat.lat });
     });
 
@@ -422,6 +424,15 @@ export default function Map({ session, onMapClick, onLoginToast }) {
 
         <div className="mt-2 bg-[#0B1120]/80 backdrop-blur-md border border-[#F59E0B]/30 rounded-lg px-3 py-2">
           <span className="text-xs text-[#F59E0B] font-semibold tracking-wide">Aviso: las notas expiran en 24 h</span>
+        </div>
+
+        <div className="mt-2 bg-[#0B1120]/80 backdrop-blur-md border border-[#22D3EE]/30 rounded-lg px-3 py-2 max-w-[220px]">
+          <div className="text-[10px] text-[#22D3EE] uppercase tracking-wider mb-1.5 font-semibold">Guía rápida</div>
+          <div className="space-y-1 text-[11px] text-[#67E8F9] leading-snug">
+            <div>Toca el mapa para crear una nota</div>
+            <div>Toca una nota para reaccionar</div>
+            <div>Inicia sesión para participar</div>
+          </div>
         </div>
       </div>
 

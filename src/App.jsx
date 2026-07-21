@@ -10,6 +10,7 @@ import LoginToast from './components/LoginToast';
 function App() {
   const [session, setSession] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [loginMode, setLoginMode] = useState('signin');
   const [showForm, setShowForm] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('para crear una nota');
@@ -62,7 +63,8 @@ function App() {
     <div className="min-h-screen bg-[#0B1120] text-[#E5E7EB]">
       <Navbar
         session={session}
-        onLoginClick={() => setShowLoginModal(true)}
+        onLoginClick={() => { setLoginMode('signin'); setShowLoginModal(true); }}
+        onSignupClick={() => { setLoginMode('signup'); setShowLoginModal(true); }}
         onLogout={() => supabase.auth.signOut()}
       />
 
@@ -84,7 +86,7 @@ function App() {
               transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
               className="relative w-full max-w-3xl rounded-2xl overflow-hidden border border-[#1E293B] shadow-2xl"
             >
-              <Login onLogin={handleLoginSuccess} onClose={() => setShowLoginModal(false)} />
+              <Login onLogin={handleLoginSuccess} onClose={() => setShowLoginModal(false)} initialMode={loginMode} />
             </motion.div>
           </div>
         )}

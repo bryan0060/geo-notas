@@ -30,18 +30,18 @@ Mapa interactivo en tiempo real donde cualquiera puede ver notas geolocalizadas,
 
 ### Pasos
 
-1. Cloná el repo:
+1. Clona el repo:
    ```bash
    git clone <url-del-repo>
    cd geo-notas
    ```
 
-2. Instalá las dependencias:
+2. Instala las dependencias:
    ```bash
    npm install
    ```
 
-3. Creá un archivo `.env` en la raíz con tus credenciales de Supabase:
+3. Crea un archivo `.env` en la raíz con tus credenciales de Supabase:
    ```
    VITE_SUPABASE_URL=tu-url-de-supabase
    VITE_SUPABASE_ANON_KEY=tu-key-publishable

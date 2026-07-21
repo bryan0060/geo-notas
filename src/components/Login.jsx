@@ -3,10 +3,24 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../supabaseClient';
 import RadarPing from './RadarPing';
 
-export default function Login({ onLogin, onClose }) {
+function translateError(msg) {
+  if (!msg) return 'Error inesperado';
+  const map = {
+    'Invalid login credentials': 'Credenciales incorrectas',
+    'Email not confirmed': 'El correo no ha sido confirmado',
+    'User already registered': 'Este correo ya está registrado',
+    'Signup requires a valid password': 'Se requiere una contraseña válida',
+    'Password should be at least 6 characters': 'La contraseña debe tener al menos 6 caracteres',
+    'new password should be different from the old password': 'La nueva contraseña debe ser diferente a la anterior',
+    'Unable to validate email address: invalid format': 'El formato del correo no es válido',
+  };
+  return map[msg] || msg;
+}
+
+export default function Login({ onLogin, onClose, initialMode = 'signin' }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(initialMode === 'signup');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -25,7 +39,7 @@ export default function Login({ onLogin, onClose }) {
       const { data, error: supabaseError } = result;
 
       if (supabaseError) {
-        setError(supabaseError.message);
+        setError(translateError(supabaseError.message));
         return;
       }
 
@@ -36,7 +50,7 @@ export default function Login({ onLogin, onClose }) {
 
       if (data.session) onLogin(data.session);
     } catch (err) {
-      setError(err.message || 'Error inesperado');
+      setError(translateError(err.message));
     } finally {
       setLoading(false);
     }
@@ -65,13 +79,14 @@ export default function Login({ onLogin, onClose }) {
           </div>
 
           <p className="text-[#94A3B8] text-sm mb-8 max-w-xs leading-relaxed">
-            Geolocaliza tus pensamientos. Cada nota anclada al mundo real.
+            ¿Tienes ideas, avisos o algo que quieras comunicar? 
+            Hazlo exactamente donde quieras que la gente lo sepa!
+            Cada nota anclada al mundo real.
           </p>
 
           <div className="font-mono text-xs text-[#64748B] space-y-1">
             <div>lat: -34.6037</div>
             <div>lng: -58.3816</div>
-            <div className="text-[#F59E0B]/80">acc: ±3m</div>
           </div>
 
           <div className="mt-8 hidden lg:block">
@@ -79,7 +94,7 @@ export default function Login({ onLogin, onClose }) {
           </div>
 
           <p className="mt-4 font-mono text-[10px] text-[#475569] tracking-wider hidden lg:block">
-            FIELD NOTES · v1.0.0
+            GEO-NOTAS · v1.0.0
           </p>
         </div>
 
@@ -97,7 +112,7 @@ export default function Login({ onLogin, onClose }) {
                   {isSignUp ? 'Crear cuenta' : 'Iniciar sesión'}
                 </h2>
                 <p className="text-[#64748B] text-sm mb-6">
-                  {isSignUp ? 'Registra una nueva bitácora' : 'Accede a tu expedición'}
+                  {isSignUp ? 'Registra una nueva nota para la alguien más' : 'Accede a la comunidad de avisos y notas en la ciudad'}
                 </p>
               </motion.div>
             </AnimatePresence>
